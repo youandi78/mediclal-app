@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
@@ -13,6 +13,8 @@ app.secret_key = os.getenv("SECRET_KEY", "super-secret-key")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+# ★ 日本時間（JST）を定義
+JST = timezone(timedelta(hours=9))
 
 # データベースのモデル（保存する情報の形）
 class StudyLog(db.Model):
@@ -66,16 +68,16 @@ def login():
 
 @app.route('/')
 def index():
-    today = datetime.now().date()
+    today = datetime.now(JST).date()
     # 復習が必要な問題を取得
     reviews = StudyLog.query.filter(StudyLog.next_review_date <= today).all()
     today_count = len(reviews)
 
     # 週末（土日）判定と週次サマリーはそのまま
-    is_weekend = datetime.now().weekday() >= 5
+    is_weekend = datetime.now(JST).weekday() >= 5
     week_summary = []
     if is_weekend:
-        last_week = datetime.now() - timedelta(days=7)
+        last_week = datetime.now(JST) - timedelta(days=7)
         week_summary = StudyLog.query.filter(StudyLog.created_at >= last_week).all()
 
     # 連続学習日数（簡易的にsessionで管理）
@@ -114,7 +116,7 @@ def generate():
         new_log = StudyLog(
             topic=t,
             question_data=problem.text,
-            next_review_date=(datetime.now() + timedelta(days=1)).date()
+            next_review_date=(datetime.now(JST) + timedelta(days=1)).date()
         )
         db.session.add(new_log)
 
@@ -123,6 +125,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
