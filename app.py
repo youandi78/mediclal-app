@@ -18,6 +18,7 @@ db = SQLAlchemy(app)
 class StudyLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(200))
+    field = db.Column(db.String(50)) 
     question_data = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     next_review_date = db.Column(db.Date)
@@ -100,21 +101,36 @@ def index():
 @app.route('/generate', methods=['POST'])
 def generate():
     topic = request.form.get('topic')
-    if not topic: return redirect(url_for('index'))
-    
-    response = model.generate_content(PROMPT_TEMPLATE.format(text=topic))
-    # 初回復習は1日後に設定
-    new_log = StudyLog(
-        topic=topic,
-        question_data=response.text,
-        next_review_date=(datetime.now() + timedelta(days=1)).date()
-    )
-    db.session.add(new_log)
+    if not topic: 
+        return redirect(url_for('index'))
+
+    # ← ここでカンマ・改行で分割
+    topics = [t.strip() for t in topic.replace("\n", ",").split(",") if t.strip()]
+
+    for t in topics:
+        # 問題生成
+        problem = model.generate_content(PROMPT_TEMPLATE.format(text=t))
+
+        # 分野タグ判定
+        field_prompt = f"このトピック「{t}」は医療のどの分野か1つだけ教えてください"
+        field_resp = model.generate_content(field_prompt)
+        field_name = field_resp.text.strip() if field_resp.text else "未分類"
+
+        # 個別保存
+        new_log = StudyLog(
+            topic=t,
+            question_data=problem.text,
+            field=field_name,
+            next_review_date=(datetime.now() + timedelta(days=1)).date()
+        )
+        db.session.add(new_log)
+
     db.session.commit()
     return redirect(url_for('index'))
 
 with app.app_context():
     db.create_all()
+
 
 
 
