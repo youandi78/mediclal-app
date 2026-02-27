@@ -69,14 +69,34 @@ def index():
     today = datetime.now().date()
     # 復習が必要な問題を取得
     reviews = StudyLog.query.filter(StudyLog.next_review_date <= today).all()
-    # 週末（土日）判定
+    today_count = len(reviews)
+
+    # 週末（土日）判定と週次サマリーはそのまま
     is_weekend = datetime.now().weekday() >= 5
     week_summary = []
     if is_weekend:
         last_week = datetime.now() - timedelta(days=7)
         week_summary = StudyLog.query.filter(StudyLog.created_at >= last_week).all()
-    return render_template('index.html', reviews=reviews, weekend=is_weekend, summary=week_summary)
 
+    # 連続学習日数（簡易的にsessionで管理）
+    last_login_date = session.get('last_login_date')
+    streak = session.get('streak', 0)
+    if last_login_date == str(today - timedelta(days=1)):
+        streak += 1
+    else:
+        streak = 1
+    session['last_login_date'] = str(today)
+    session['streak'] = streak
+
+    return render_template(
+        'index.html',
+        reviews=reviews,
+        weekend=is_weekend,
+        summary=week_summary,
+        today=today,
+        today_count=today_count,
+        streak=streak
+    )
 @app.route('/generate', methods=['POST'])
 def generate():
     topic = request.form.get('topic')
@@ -95,6 +115,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
