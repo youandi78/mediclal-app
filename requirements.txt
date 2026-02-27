@@ -3,6 +3,7 @@ Flask-SQLAlchemy
 psycopg2-binary
 google-generativeai>=0.7.0
 python-dotenv
-pip install Flask-Migrate
+
 gunicorn
+
 
