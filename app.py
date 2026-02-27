@@ -13,6 +13,8 @@ app.secret_key = os.getenv("SECRET_KEY", "super-secret-key")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 # データベースのモデル（保存する情報の形）
 class StudyLog(db.Model):
@@ -90,4 +92,5 @@ def generate():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+
     app.run(debug=True)
