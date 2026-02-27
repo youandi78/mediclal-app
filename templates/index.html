@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>機序理解ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-4">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold text-blue-800 mb-6">🧠 医学生用・機序理解ログ</h1>
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6">
+            <h2 class="font-bold mb-2 text-sm">今日の学習内容（病態など）を入力</h2>
+            <form action="/generate" method="post">
+                <textarea name="topic" class="w-full border p-2 rounded mb-2" rows="3" placeholder="例：ネフローゼ症候群の病態"></textarea>
+                <button class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">Geminiに問題を作らせる</button>
+            </form>
+        </div>
+        <h2 class="text-lg font-bold text-orange-600 mb-2">🔁 本日の復習問題</h2>
+        {% for item in reviews %}
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-400 mb-4 text-sm">
+            <p class="font-bold mb-2">【{{ item.topic }}】</p>
+            <details>
+                <summary class="text-blue-600 cursor-pointer font-bold">問題と解説を表示</summary>
+                <div class="whitespace-pre-wrap mt-2 p-2 bg-slate-50 rounded border text-xs">{{ item.question_data }}</div>
+            </details>
+        </div>
+        {% endfor %}
+        {% if weekend %}
+        <div class="mt-8 p-4 bg-green-100 rounded-xl border border-green-300">
+            <h2 class="font-bold text-green-800">🗓 週末の総復習（今週の全ログ）</h2>
+            {% for item in summary %}
+            <p class="text-xs mt-2">・{{ item.topic }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
