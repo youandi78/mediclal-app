@@ -9,6 +9,15 @@
 <body class="bg-slate-50 p-4">
     <div class="max-w-md mx-auto">
         <h1 class="text-2xl font-bold text-blue-800 mb-6">🧠 医学生用・機序理解ログ</h1>
+
+        <!-- ここから追加 -->
+        <div class="mb-6 p-4 bg-yellow-100 rounded-xl border border-yellow-300 text-sm text-gray-700">
+            <p>今日は <strong>{{ today.strftime('%Y年%m月%d日（%a）') }}</strong> です。</p>
+            <p>本日の復習問題は <strong>{{ today_count }}</strong> 問あります。</p>
+            <p>連続学習日数: <strong>{{ streak }}</strong> 日</p>
+        </div>
+        <!-- ここまで追加 -->
+
         <div class="bg-white p-4 rounded-xl shadow-sm mb-6">
             <h2 class="font-bold mb-2 text-sm">今日の学習内容（病態など）を入力</h2>
             <form action="/generate" method="post">
@@ -34,6 +43,47 @@
             {% endfor %}
         </div>
         {% endif %}
+
+        <!-- ポモドーロタイマー表示を追加 -->
+        <div id="pomodoro-timer" class="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded cursor-pointer select-none" title="クリックで開始/停止">25:00</div>
+
+        <script>
+            let pomodoroTime = 25 * 60;
+            let timerElem = document.getElementById('pomodoro-timer');
+            let timerId = null;
+
+            function formatTime(sec) {
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }
+
+            function startTimer() {
+                if (timerId) return;
+                timerId = setInterval(() => {
+                    pomodoroTime--;
+                    timerElem.textContent = formatTime(pomodoroTime);
+                    if (pomodoroTime <= 0) {
+                        clearInterval(timerId);
+                        timerId = null;
+                        alert('時間です！休憩しましょう😊');
+                        pomodoroTime = 25 * 60;
+                        timerElem.textContent = formatTime(pomodoroTime);
+                    }
+                }, 1000);
+            }
+
+            timerElem.addEventListener('click', () => {
+                if (timerId) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    timerElem.textContent = formatTime(pomodoroTime) + ' (停止中)';
+                } else {
+                    startTimer();
+                }
+            });
+        </script>
     </div>
 </body>
+    
 </html>
