@@ -27,10 +27,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 for m in genai.list_models():
     print(f"利用可能なモデル: {m.name}")
 # モデルIDは最新の 3.1 Pro を指定
-model_id = 'gemini-1.5-flash'
-
-try:
-    # 機能を最小限にして、エラーを回避します
+model_id = 'gemini-2.5-flash',
     model = genai.GenerativeModel(
         model_name=model_id,
         generation_config={
@@ -104,6 +101,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
