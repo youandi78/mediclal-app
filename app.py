@@ -25,17 +25,19 @@ class StudyLog(db.Model):
 # Gemini設定
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-model_id = 'gemini-3.1-pro-preview' # IDはすべて小文字にするのがコツです
+# モデルIDは最新の 3.1 Pro を指定
+model_id = 'gemini-3.1-pro-preview'
+
 try:
+    # 機能を最小限にして、エラーを回避します
     model = genai.GenerativeModel(
         model_name=model_id,
         generation_config={
-            "thinking_mode": "enabled", # これが最強の思考モード
             "temperature": 0.7,
         }
     )
 except:
-    # 3.1 Pro がダメな時のための保険
+    # 万が一の保険
     model = genai.GenerativeModel('gemini-1.5-pro')
 
 PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
@@ -101,6 +103,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
