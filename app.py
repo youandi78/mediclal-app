@@ -36,7 +36,7 @@ model_id = 'gemini-2.5-flash',
     )
 except:
     # 万が一の保険
-    model = genai.GenerativeModel('gemini-1.5-pro')
+    model = genai.GenerativeModel('gemini-2.5-pro')
 
 PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
 以下の学習内容を基に、機序理解を問う問題を作成してください。
@@ -101,6 +101,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
