@@ -24,7 +24,7 @@ class StudyLog(db.Model):
 
 # Gemini設定
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-pro')
+model = genai.GenerativeModel('gemini-3-pro')
 
 PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
 以下の学習内容を基に、機序理解を問う問題を作成してください。
@@ -89,3 +89,4 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
