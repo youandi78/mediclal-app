@@ -26,15 +26,23 @@
             </form>
         </div>
         <h2 class="text-lg font-bold text-orange-600 mb-2">🔁 本日の復習問題</h2>
-        {% for item in reviews %}
-        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-400 mb-4 text-sm">
-            <p class="font-bold mb-2">【{{ item.topic }}】</p>
-            <details>
-                <summary class="text-blue-600 cursor-pointer font-bold">問題と解説を表示</summary>
-                <div class="whitespace-pre-wrap mt-2 p-2 bg-slate-50 rounded border text-xs">{{ item.question_data }}</div>
-            </details>
-        </div>
-        {% endfor %}
+        {% set fields = reviews | map(attribute='field') | unique | list %}
+
+{% for field_name in fields %}
+<div class="mt-6">
+    <h2 class="font-bold text-lg text-blue-800 mb-2">📂 {{ field_name }}</h2>
+    {% set field_reviews = reviews | selectattr("field","equalto",field_name) | list %}
+    {% for item in field_reviews %}
+    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-400 mb-4 text-sm">
+        <p class="font-bold mb-1">【{{ item.topic }}】</p>
+        <details>
+            <summary class="text-blue-600 cursor-pointer font-bold">問題と解説を表示</summary>
+            <div class="whitespace-pre-wrap mt-2 p-2 bg-slate-50 rounded border text-xs">{{ item.question_data }}</div>
+        </details>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
         {% if weekend %}
         <div class="mt-8 p-4 bg-green-100 rounded-xl border border-green-300">
             <h2 class="font-bold text-green-800">🗓 週末の総復習（今週の全ログ）</h2>
@@ -87,3 +95,4 @@
 </body>
     
 </html>
+
