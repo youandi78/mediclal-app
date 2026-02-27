@@ -13,7 +13,6 @@ app.secret_key = os.getenv("SECRET_KEY", "super-secret-key")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 # データベースのモデル（保存する情報の形）
 class StudyLog(db.Model):
@@ -115,7 +114,6 @@ def generate():
         new_log = StudyLog(
             topic=t,
             question_data=problem.text,
-            field=field_name,
             next_review_date=(datetime.now() + timedelta(days=1)).date()
         )
         db.session.add(new_log)
@@ -125,6 +123,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
