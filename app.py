@@ -26,7 +26,7 @@ class StudyLog(db.Model):
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # モデルIDは最新の 3.1 Pro を指定
-model_id = 'gemini-3.1-flash'
+model_id = 'gemini-1.5-flash'
 
 try:
     # 機能を最小限にして、エラーを回避します
@@ -103,6 +103,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
