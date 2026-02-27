@@ -19,7 +19,6 @@ migrate = Migrate(app, db)
 class StudyLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(200))
-    field = db.Column(db.String(50)) 
     question_data = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     next_review_date = db.Column(db.Date)
@@ -112,11 +111,6 @@ def generate():
         # 問題生成
         problem = model.generate_content(PROMPT_TEMPLATE.format(text=t))
 
-        # 分野タグ判定
-        field_prompt = f"このトピック「{t}」は医療のどの分野か1つだけ教えてください"
-        field_resp = model.generate_content(field_prompt)
-        field_name = field_resp.text.strip() if field_resp.text else "未分類"
-
         # 個別保存
         new_log = StudyLog(
             topic=t,
@@ -131,6 +125,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
