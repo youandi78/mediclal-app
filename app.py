@@ -24,19 +24,13 @@ class StudyLog(db.Model):
 
 # Gemini設定
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-for m in genai.list_models():
-    print(f"利用可能なモデル: {m.name}")
-# モデルIDは最新の 3.1 Pro を指定
-model_id = 'gemini-2.5-flash',
-    model = genai.GenerativeModel(
-        model_name=model_id,
-        generation_config={
-            "temperature": 0.7,
-        }
-    )
-except:
-    # 万が一の保険
-    model = genai.GenerativeModel('gemini-2.5-pro')
+
+model = genai.GenerativeModel(
+    model_name="gemini-2.5-flash",
+    generation_config={
+        "temperature": 0.7,
+    }
+)
 
 PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
 以下の学習内容を基に、機序理解を問う問題を作成してください。
@@ -101,6 +95,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
