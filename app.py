@@ -41,7 +41,7 @@ model = genai.GenerativeModel(
     }
 )
 
-PROMPT_TEMPLATE = """あなたは医師国家試験を受ける医学生6年生です。
+PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
 以下の学習内容を基に、機序理解を問う問題を作成してください。
 
 【学習内容】
@@ -177,6 +177,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
