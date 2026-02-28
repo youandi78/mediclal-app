@@ -2,28 +2,64 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>問題</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>機序理解クイズ | Yuu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .bg-medical-blue { background-color: #0052CC; }
+        .text-medical-blue { color: #0052CC; }
+        .border-medical-blue { border-color: #0052CC; }
+    </style>
 </head>
-<body class="bg-slate-50 p-4">
+<body class="bg-zinc-50 text-zinc-900 p-4">
 
-<div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
-    <h2 class="text-lg font-bold mb-4">{{ q.question }}</h2>
+<div class="max-w-md mx-auto">
+    <header class="py-8">
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-1">Testing Mechanism</div>
+        <h1 class="text-2xl font-black tracking-tight text-zinc-900">
+            【{{ log.topic }}】
+        </h1>
+    </header>
 
-    <form method="post" action="/answer/{{ log.id }}">
+    <div class="bg-white p-8 border border-zinc-200 rounded-sm shadow-sm mb-6">
+        <p class="text-lg font-bold leading-relaxed text-zinc-800">
+            {{ q.question }}
+        </p>
+    </div>
+    
+<details class="mb-10 group">
+    <summary class="text-[11px] font-black uppercase tracking-[0.2em] text-medical-blue cursor-pointer list-none flex items-center gap-2">
+        <span class="w-2 h-2 bg-medical-blue rounded-full animate-pulse"></span>
+        病態をイメージで掴む
+    </summary>
+    <div class="mt-4 p-6 bg-blue-50 border-l-2 border-medical-blue rounded-r-sm shadow-inner">
+        <p class="text-sm font-bold text-zinc-700 leading-relaxed italic">
+            「 {{ q.imagery_hint }} 」
+        </p>
+    </div>
+</details>
+    
+    <form method="post" action="/answer/{{ log.id }}" class="space-y-3">
         {% for choice in q.choices %}
         <button type="submit"
                 name="selected"
                 value="{{ loop.index0 }}"
-                class="w-full border p-3 mb-2 rounded hover:bg-blue-100 text-left">
-            {{ loop.index }}. {{ choice }}
+                class="w-full text-left p-5 border border-zinc-200 rounded-sm bg-white hover:border-medical-blue hover:text-medical-blue transition-all group flex items-start gap-4">
+            <span class="font-mono font-bold text-zinc-300 group-hover:text-medical-blue">0{{ loop.index }}</span>
+            <span class="text-sm font-bold">{{ choice }}</span>
         </button>
         {% endfor %}
     </form>
 
-    <a href="/" class="block mt-4 text-center text-sm text-gray-500">
-        ← 戻る
-    </a>
+    <footer class="mt-12 text-center">
+        <a href="/" class="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 transition-colors">
+            ← Back to Dashboard
+        </a>
+    </footer>
 </div>
 
 </body>
