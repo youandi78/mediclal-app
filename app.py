@@ -172,7 +172,7 @@ def generate():
     topics = [t.strip() for t in topic.replace("\n", ",").split(",") if t.strip()]
 
     for t in topics:
-    problem = model.generate_content(PROMPT_TEMPLATE.format(text=t))
+        problem = model.generate_content(PROMPT_TEMPLATE.format(text=t))
     data = json.loads(problem.text)
 
     new_log = StudyLog(
@@ -188,6 +188,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
