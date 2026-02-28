@@ -3,92 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>機序理解ツール</title>
+    <title>機序理解ログ | Yuu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .bg-medical-blue { background-color: #0052CC; }
+        .text-medical-blue { color: #0052CC; }
+    </style>
 </head>
-<body class="bg-slate-50 p-4">
+<body class="bg-zinc-50 text-zinc-900 p-4">
     <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-bold text-blue-800 mb-6">🧠 医学生用・機序理解ログ</h1>
+        
+        <header class="py-8">
+            <h1 class="text-3xl font-black tracking-tighter text-zinc-900 border-b-4 border-zinc-900 inline-block">
+                LOG.<span class="text-medical-blue">機序理解</span>
+            </h1>
+            <div class="mt-2 text-[10px] font-bold text-zinc-400 flex justify-between tracking-widest">
+                <span>悠/ M5</span>
+                <span>{{ today.strftime('%Y年%m月%d日') }}</span>
+            </div>
+        </header>
 
-        <!-- ここから追加 -->
-        <div class="mb-6 p-4 bg-yellow-100 rounded-xl border border-yellow-300 text-sm text-gray-700">
-            <p>今日は <strong>{{ today.strftime('%Y年%m月%d日（%a）') }}</strong> です。</p>
-            <p>本日の復習問題は <strong>{{ today_count }}</strong> 問あります。</p>
-            <p>連続学習日数: <strong>{{ streak }}</strong> 日</p>
+        <div class="mb-8 flex gap-4 text-xs font-bold text-zinc-500">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-medical-blue"></span>
+                本日の復習：{{ today_count }} 問
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-zinc-300"></span>
+                連続学習日数：{{ streak }} 日
+            </div>
         </div>
-        <!-- ここまで追加 -->
 
-        <div class="bg-white p-4 rounded-xl shadow-sm mb-6">
-            <h2 class="font-bold mb-2 text-sm">今日の学習内容（病態など）を入力</h2>
+        <section class="bg-zinc-900 p-6 rounded-sm shadow-2xl mb-10">
+            <h2 class="text-white text-[11px] font-bold mb-4 opacity-70 tracking-widest">
+                今日の学習内容（病態名など）を入力
+            </h2>
             <form action="/generate" method="post">
-                <textarea name="topic" class="w-full border p-2 rounded mb-2" rows="3" placeholder="例：ネフローゼ症候群の病態"></textarea>
-                <button class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">Geminiに問題を作らせる</button>
+                <textarea name="topic" 
+                    class="w-full bg-zinc-800 border-none text-white p-4 rounded-sm mb-4 text-sm focus:ring-1 focus:ring-medical-blue outline-none placeholder-zinc-600" 
+                    rows="3" 
+                    placeholder="例：ネフローゼ症候群, DIC（カンマ区切り可）"></textarea>
+                <button class="w-full bg-medical-blue text-white py-4 rounded-sm text-xs font-black tracking-[0.2em] hover:bg-blue-700 transition-all">
+                    Geminiに問題を作らせる
+                </button>
             </form>
-        </div>
-        <h2 class="text-lg font-bold text-orange-600 mb-2">🔁 本日の復習問題</h2>
-        {% set fields = reviews | map(attribute='field') | unique | list %}
+        </section>
 
-{% for item in reviews %}
-<div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-400 mb-4 text-sm">
-    <p class="font-bold mb-2">【{{ item.topic }}】</p>
-    <details>
-        <summary class="text-blue-600 cursor-pointer font-bold">問題と解説を表示</summary>
-        <div class="whitespace-pre-wrap mt-2 p-2 bg-slate-50 rounded border text-xs">{{ item.question_data }}</div>
-    </details>
-</div>
-{% endfor %}
+        <h2 class="text-xs font-black text-zinc-400 mb-6 flex items-center gap-4">
+            本日の復習問題 <span class="h-[1px] bg-zinc-200 flex-grow"></span>
+        </h2>
+
+        {% if reviews %}
+            <div class="space-y-4">
+                {% for item in reviews %}
+                <div class="bg-white p-6 border border-zinc-200 rounded-sm hover:border-medical-blue transition-colors group shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="font-bold text-lg tracking-tight text-zinc-800">【{{ item.topic }}】</p>
+                        <span class="text-[9px] font-bold text-zinc-400 border border-zinc-200 px-2 py-0.5 rounded-full uppercase">
+                            間隔: {{ item.interval }}日
+                        </span>
+                    </div>
+                    <a href="/quiz/{{ item.id }}" class="inline-flex items-center text-[11px] font-black tracking-widest text-medical-blue hover:gap-2 transition-all">
+                        問題を解く <span>→</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-20 border-2 border-dashed border-zinc-100 rounded-sm">
+                <p class="text-zinc-300 text-[11px] font-bold tracking-widest uppercase">No tasks remaining</p>
+            </div>
+        {% endif %}
+
         {% if weekend %}
-        <div class="mt-8 p-4 bg-green-100 rounded-xl border border-green-300">
-            <h2 class="font-bold text-green-800">🗓 週末の総復習（今週の全ログ）</h2>
-            {% for item in summary %}
-            <p class="text-xs mt-2">・{{ item.topic }}</p>
-            {% endfor %}
+        <div class="mt-12 p-6 bg-zinc-100 rounded-sm">
+            <h2 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">🗓 週末の総復習（アーカイブ）</h2>
+            <ul class="space-y-2">
+                {% for item in summary %}
+                <li class="text-[11px] font-bold text-zinc-400 flex items-center gap-2">
+                    <span class="w-1 h-1 bg-zinc-300"></span> {{ item.topic }}
+                </li>
+                {% endfor %}
+            </ul>
         </div>
         {% endif %}
 
-        <!-- ポモドーロタイマー表示を追加 -->
-        <div id="pomodoro-timer" class="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded cursor-pointer select-none" title="クリックで開始/停止">25:00</div>
+        <div id="pomodoro-timer" class="fixed bottom-8 right-8 bg-medical-blue text-white font-mono px-6 py-4 text-sm font-bold rounded-sm shadow-2xl cursor-pointer select-none hover:bg-zinc-900 transition-all z-50">
+            25:00
+        </div>
 
-        <script>
-            let pomodoroTime = 25 * 60;
-            let timerElem = document.getElementById('pomodoro-timer');
-            let timerId = null;
+    </div>
 
-            function formatTime(sec) {
-                const m = Math.floor(sec / 60);
-                const s = sec % 60;
-                return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            }
+    <script>
+        let pomodoroTime = 25 * 60;
+        let timerElem = document.getElementById('pomodoro-timer');
+        let timerId = null;
 
-            function startTimer() {
-                if (timerId) return;
-                timerId = setInterval(() => {
-                    pomodoroTime--;
-                    timerElem.textContent = formatTime(pomodoroTime);
-                    if (pomodoroTime <= 0) {
-                        clearInterval(timerId);
-                        timerId = null;
-                        alert('時間です！休憩しましょう😊');
-                        pomodoroTime = 25 * 60;
-                        timerElem.textContent = formatTime(pomodoroTime);
-                    }
-                }, 1000);
-            }
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
 
-            timerElem.addEventListener('click', () => {
-                if (timerId) {
+        function startTimer() {
+            if (timerId) return;
+            timerId = setInterval(() => {
+                pomodoroTime--;
+                timerElem.textContent = formatTime(pomodoroTime);
+                if (pomodoroTime <= 0) {
                     clearInterval(timerId);
                     timerId = null;
-                    timerElem.textContent = formatTime(pomodoroTime) + ' (停止中)';
-                } else {
-                    startTimer();
+                    alert('時間です。休憩しましょう。');
+                    pomodoroTime = 25 * 60;
+                    timerElem.textContent = formatTime(pomodoroTime);
                 }
-            });
-        </script>
-    </div>
+            }, 1000);
+        }
+
+        timerElem.addEventListener('click', () => {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+                timerElem.classList.replace('bg-medical-blue', 'bg-zinc-400');
+            } else {
+                startTimer();
+                timerElem.classList.replace('bg-zinc-400', 'bg-medical-blue');
+                timerElem.classList.replace('bg-zinc-900', 'bg-medical-blue');
+            }
+        });
+    </script>
 </body>
-    
 </html>
+
 
 
 
