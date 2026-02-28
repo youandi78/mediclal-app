@@ -172,22 +172,23 @@ def generate():
     topics = [t.strip() for t in topic.replace("\n", ",").split(",") if t.strip()]
 
     for t in topics:
-        # 問題生成
-        problem = model.generate_content(PROMPT_TEMPLATE.format(text=t))
+    problem = model.generate_content(PROMPT_TEMPLATE.format(text=t))
+    data = json.loads(problem.text)
 
-        # 個別保存
-        new_log = StudyLog(
-            topic=t,
-            question_data=problem.text,
-            next_review_date=(datetime.now(JST) + timedelta(days=1)).date()
-        )
-        db.session.add(new_log)
+    new_log = StudyLog(
+        topic=t,
+        question_data=json.dumps(data),
+        next_review_date=datetime.now(JST).date()
+    )
+
+    db.session.add(new_log)
 
     db.session.commit()
     return redirect(url_for('index'))
 
 with app.app_context():
     db.create_all()
+
 
 
 
