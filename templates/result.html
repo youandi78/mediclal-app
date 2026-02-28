@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>結果</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-4">
+
+<div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
+
+    {% if correct %}
+        <div class="bg-green-100 text-green-800 p-3 rounded mb-4 font-bold">
+            ✅ 正解
+        </div>
+    {% else %}
+        <div class="bg-red-100 text-red-800 p-3 rounded mb-4 font-bold">
+            ❌ 不正解
+        </div>
+        <p class="mb-2">正解：{{ correct_index + 1 }}</p>
+    {% endif %}
+
+    <h3 class="font-bold mt-4 mb-2">解説</h3>
+
+    {% for exp in explanations %}
+        <div class="text-sm mb-2 p-2 bg-slate-50 rounded">
+            {{ loop.index }}. {{ exp }}
+        </div>
+    {% endfor %}
+
+    <a href="/" 
+       class="block mt-4 bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">
+       次の問題へ
+    </a>
+
+</div>
+
+</body>
+</html>
