@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>問題</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-4">
+
+<div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
+    <h2 class="text-lg font-bold mb-4">{{ q.question }}</h2>
+
+    <form method="post" action="/answer/{{ log.id }}">
+        {% for choice in q.choices %}
+        <button type="submit"
+                name="selected"
+                value="{{ loop.index0 }}"
+                class="w-full border p-3 mb-2 rounded hover:bg-blue-100 text-left">
+            {{ loop.index }}. {{ choice }}
+        </button>
+        {% endfor %}
+    </form>
+
+    <a href="/" class="block mt-4 text-center text-sm text-gray-500">
+        ← 戻る
+    </a>
+</div>
+
+</body>
+</html>
