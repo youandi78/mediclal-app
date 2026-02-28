@@ -176,7 +176,9 @@ def generate():
     return redirect(url_for('index'))
 
 with app.app_context():
+    db.drop_all()
     db.create_all()
+
 
 
 
