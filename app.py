@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, session
@@ -19,10 +20,16 @@ JST = timezone(timedelta(hours=9))
 # データベースのモデル（保存する情報の形）
 class StudyLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
     topic = db.Column(db.String(200))
     question_data = db.Column(db.Text)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     next_review_date = db.Column(db.Date)
+
+    repetition = db.Column(db.Integer, default=0)
+    interval = db.Column(db.Integer, default=0)
+    ease_factor = db.Column(db.Float, default=2.5)
 
 # Gemini設定
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -34,7 +41,7 @@ model = genai.GenerativeModel(
     }
 )
 
-PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
+PROMPT_TEMPLATE = """あなたは医師国家試験を受ける医学生6年生です。
 以下の学習内容を基に、機序理解を問う問題を作成してください。
 
 【学習内容】
@@ -51,6 +58,25 @@ PROMPT_TEMPLATE = """あなたは医師国家試験の作問者です。
 【国試での重要度】★1〜5
 【この病態を説明せよ】(機序の核心を突く記述問題)
 """
+def sm2_update(log, quality):
+    if quality < 3:
+        log.repetition = 0
+        log.interval = 1
+    else:
+        if log.repetition == 0:
+            log.interval = 1
+        elif log.repetition == 1:
+            log.interval = 6
+        else:
+            log.interval = round(log.interval * log.ease_factor)
+
+        log.repetition += 1
+
+    log.ease_factor += (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+    if log.ease_factor < 1.3:
+        log.ease_factor = 1.3
+
+    log.next_review_date = datetime.now(JST).date() + timedelta(days=log.interval)
 
 # パスワード保護
 @app.before_request
@@ -66,6 +92,32 @@ def login():
             return redirect(url_for('index'))
     return '<h1>Password:</h1><form method="post"><input type="password" name="password"><button>Login</button></form>'
 
+@app.route('/quiz/<int:q_id>')
+def quiz(q_id):
+    log = StudyLog.query.get_or_404(q_id)
+    data = json.loads(log.question_data)
+    return render_template('quiz.html', log=log, q=data)
+    
+@app.route('/answer/<int:q_id>', methods=['POST'])
+def answer(q_id):
+    log = StudyLog.query.get_or_404(q_id)
+    data = json.loads(log.question_data)
+
+    selected = int(request.form.get('selected'))
+    correct = selected == data["answer_index"]
+
+    quality = 5 if correct else 2
+
+    sm2_update(log, quality)
+    db.session.commit()
+
+    return render_template(
+        "result.html",
+        correct=correct,
+        explanations=data["explanations"],
+        correct_index=data["answer_index"]
+    )
+    
 @app.route('/')
 def index():
     today = datetime.now(JST).date()
@@ -125,6 +177,7 @@ def generate():
 
 with app.app_context():
     db.create_all()
+
 
 
 
